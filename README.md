@@ -1,7 +1,11 @@
 httptail
 ========
 
-HTTPtail is a "tail" style command line utility for continuously streaming the contents of a file on an HTTP server.  The main difference is "tail" is line-oriented whereas HTTPtail is byte-oriented.  Line orientation is a possible future feature.
+HTTPtail is a "tail" style command line utility for continuously streaming the contents of a file on an HTTP server, as the file is appended to.  This is mostly useful for streaming log files that are accessible over HTTP.  The main difference is "tail" is line-oriented whereas HTTPtail is byte-oriented.  Line orientation is a possible future feature.
+
+Requirements
+---
+HTTPtail requires an HTTP server in use that complies with the "Range" and "Content-Range" behavior specified in the HTTP RFC.  This program is tested with Nginx serving up a static file, but should also work on Apache or other standards-compliant Web servers.  Servers that do not return correct HTTP status codes 206 and 416 will cause this program to fail.
 
 How to use
 ---
@@ -19,6 +23,9 @@ Invocation examples
         (same as "curl  -r -20480 http://example.com/foo.txt")
 
     httptail -c 20480 -f http://example.com/foo.txt
+
+    # Don't show any existing content; only fetch "new" bytes that are appended
+    httptail -c 0 -f http://example.com/foo.txt
 
 Differences from tail
 ---

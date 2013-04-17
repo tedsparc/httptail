@@ -79,8 +79,13 @@ func range_request(client *http.Client, url string, range_header string) string 
 		_, err = io.Copy(os.Stdout, resp.Body)
 		err_fatal(err)
 
-		last_byte_position := parse_content_range(resp.Header.Get("Content-Range"))
+		last_byte_position, _ := parse_content_range(resp.Header.Get("Content-Range"))
 		return fmt.Sprintf("bytes=%d-", last_byte_position+1)
+	} else if resp.StatusCode == http.StatusRequestedRangeNotSatisfiable && *byte_count == 0 {
+		// with byte_count == 0, we'll keep requesting range "0-" repeatedly, which will never succeed
+		// Make the next request with the file size as our offset
+		_, length_bytes := parse_content_range(resp.Header.Get("Content-Range"))
+		return fmt.Sprintf("bytes=%d-", length_bytes)
 	} else if resp.StatusCode == http.StatusRequestedRangeNotSatisfiable {
 		// FIXME: error if the size of the file on the server has shrunk since last time
 		return range_header
@@ -91,12 +96,15 @@ func range_request(client *http.Client, url string, range_header string) string 
 }
 
 // Parse the Content-Range response header to extract the last_byte_position
-func parse_content_range(range_header string) int {
+func parse_content_range(range_header string) (int, int) {
 	//bytes 91029-91128/91129
 	var first_byte_position int
 	var last_byte_position int
 	var length_bytes int
 	_, err := fmt.Sscanf(range_header, "bytes %d-%d/%d", &first_byte_position, &last_byte_position, &length_bytes)
-	err_fatal(err)
-	return last_byte_position
+	if err != nil {
+		_, err := fmt.Sscanf(range_header, "bytes */%d", &length_bytes)
+		err_fatal(err)
+	}
+	return last_byte_position, length_bytes
 }
