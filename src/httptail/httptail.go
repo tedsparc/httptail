@@ -26,7 +26,8 @@ func main() {
 	var url = flag.Arg(0)
 	// remove this after dev
 	if url == "" {
-		url = "http://tedb.us/foo.txt"
+		//url = "http://tedb.us/foo.txt"
+		log.Fatal("URL must be specified, e.g. httptail http://example.com/foo.txt")
 	}
 	if strings.Index(url, "http://") != 0 {
 		url = "http://" + url
