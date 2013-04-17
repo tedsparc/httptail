@@ -7,7 +7,7 @@ How to use
 ---
     git clone https://github.com/tedsparc/httptail.git
     cd httptail
-    GOPATH=`pwd` git install httptail
+    GOPATH=`pwd` go install httptail
     bin/httptail -c 10240 -f http://example.com/foo.txt
 
 Invocation examples

@@ -14,9 +14,9 @@ import (
 
 //FUTURE: it would be awesome to rewrite this as a "Reader", so the data is treated just as a byte stream
 
-var debug = flag.Bool("debug", false, "Show debug info")
-var follow = flag.Bool("follow", false, "Enable tail -f style follow behavior")
-var byte_count = flag.Int("count", 1024, "Byte count to retrieve initially")
+var debug = flag.Bool("d", false, "Show debug info")
+var follow = flag.Bool("f", false, "Enable tail -f style follow behavior")
+var byte_count = flag.Int("c", 1024, "Byte count to retrieve initially")
 
 func main() {
 	// Get flags
