@@ -36,9 +36,9 @@ How does httptail work?
 ---
 
 1. Read command line arguments for URL (required), -f (follow), and -c (byte count; optional, default 1024 bytes)
-1. GET the URL with a "Range:" header specifying the last --bytes bytes: "bytes=-1024"
+1. GET the URL with a "Range:" header specifying the last -c bytes: "bytes=-1024"
 1. The HTTP response MUST be a code 206 (Partial Content); a 200 response implies the server ignored the Range header
 1. Print the output to stdout
 1. If -f not specified, exit
 1. Sleep 1 second
-1. Repeat fetch/print, with a "Range:" header starting at the last byte from the "Content-Range" response: "bytes=100000
+1. Repeat fetch/print, with a "Range:" header starting at the last byte from the "Content-Range" response, e.g.  "bytes=100000-"
