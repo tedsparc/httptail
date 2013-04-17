@@ -2,12 +2,12 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"net/http/httputil"
 	"os"
-	"io"
-	"fmt"
 	"time"
 )
 
@@ -27,12 +27,14 @@ func main() {
 	if url == "" {
 		url = "http://tedb.us/foo.txt"
 	}
-	if *debug { log.Printf("url: %v\n", url) }
+	if *debug {
+		log.Printf("url: %v\n", url)
+	}
 
-	client := &http.Client {}
+	client := &http.Client{}
 
 	next_request_range := range_request(client, url, fmt.Sprintf("bytes=-%d", *byte_count))
-	
+
 	if *follow {
 		for {
 			time.Sleep(1 * time.Second)
@@ -45,7 +47,7 @@ func main() {
 func err_fatal(err error) {
 	if err != nil {
 		log.Fatal(err)
-	}	
+	}
 }
 
 // Perform an HTTP request against the URL, specifying a range; copy output to stdout
@@ -54,7 +56,7 @@ func range_request(client *http.Client, url string, range_header string) string 
 	err_fatal(err)
 	req.Header.Set("Range", range_header)
 	req.Header.Set("User-Agent", "HTTPtail")
-	
+
 	if *debug {
 		req_string, _ := httputil.DumpRequest(req, false)
 		log.Print(string(req_string))
@@ -62,7 +64,7 @@ func range_request(client *http.Client, url string, range_header string) string 
 
 	resp, err := client.Do(req)
 	defer resp.Body.Close()
-	
+
 	if *debug {
 		resp_string, _ := httputil.DumpResponse(resp, true)
 		log.Print(string(resp_string))
@@ -73,7 +75,7 @@ func range_request(client *http.Client, url string, range_header string) string 
 		err_fatal(err)
 
 		last_byte_position := parse_content_range(resp.Header.Get("Content-Range"))
-		return fmt.Sprintf("bytes=%d-", last_byte_position + 1)
+		return fmt.Sprintf("bytes=%d-", last_byte_position+1)
 	} else if resp.StatusCode == http.StatusRequestedRangeNotSatisfiable {
 		// FIXME: error if the size of the file on the server has shrunk since last time
 		return range_header
