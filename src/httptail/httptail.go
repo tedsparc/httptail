@@ -38,7 +38,7 @@ func main() {
 
 	client := &http.Client{}
 
-	next_request_range := range_request(client, url, fmt.Sprintf("bytes=-%d", *byte_count))
+	next_request_range := range_request(client, url, fmt.Sprintf("-%d", *byte_count))
 
 	if *follow {
 		for {
@@ -56,10 +56,11 @@ func err_fatal(err error) {
 }
 
 // Perform an HTTP request against the URL, specifying a range; copy output to stdout
+// Returns the byte range string to use for the next HTTP request's Range: header
 func range_request(client *http.Client, url string, range_header string) string {
 	req, err := http.NewRequest("GET", url, nil)
 	err_fatal(err)
-	req.Header.Set("Range", range_header)
+	req.Header.Set("Range", "bytes=" + range_header)
 	req.Header.Set("User-Agent", "HTTPtail")
 
 	if *debug {
@@ -81,12 +82,12 @@ func range_request(client *http.Client, url string, range_header string) string 
 		err_fatal(err)
 
 		last_byte_position, _ := parse_content_range(resp.Header.Get("Content-Range"))
-		return fmt.Sprintf("bytes=%d-", last_byte_position+1)
+		return fmt.Sprintf("%d-", last_byte_position+1)
 	} else if resp.StatusCode == http.StatusRequestedRangeNotSatisfiable && *byte_count == 0 {
 		// with byte_count == 0, we'll keep requesting range "0-" repeatedly, which will never succeed
 		// Make the next request with the file size as our offset
 		_, length_bytes := parse_content_range(resp.Header.Get("Content-Range"))
-		return fmt.Sprintf("bytes=%d-", length_bytes)
+		return fmt.Sprintf("%d-", length_bytes)
 	} else if resp.StatusCode == http.StatusRequestedRangeNotSatisfiable {
 		// FIXME: error if the size of the file on the server has shrunk since last time
 		return range_header
