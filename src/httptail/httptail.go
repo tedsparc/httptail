@@ -8,10 +8,11 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"os"
+	"strings"
 	"time"
 )
 
-//FUTURE: it would be awesome to rewrite this as a "Reader"
+//FUTURE: it would be awesome to rewrite this as a "Reader", so the data is treated just as a byte stream
 
 var debug = flag.Bool("debug", false, "Show debug info")
 var follow = flag.Bool("follow", false, "Enable tail -f style follow behavior")
@@ -26,6 +27,9 @@ func main() {
 	// remove this after dev
 	if url == "" {
 		url = "http://tedb.us/foo.txt"
+	}
+	if strings.Index(url, "http://") != 0 {
+		url = "http://" + url
 	}
 	if *debug {
 		log.Printf("url: %v\n", url)
@@ -63,6 +67,7 @@ func range_request(client *http.Client, url string, range_header string) string 
 	}
 
 	resp, err := client.Do(req)
+	err_fatal(err)
 	defer resp.Body.Close()
 
 	if *debug {

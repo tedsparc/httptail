@@ -3,15 +3,22 @@ httptail
 
 HTTPtail is a "tail" style command line utility for continuously streaming the contents of a file on an HTTP server.  The main difference is "tail" is line-oriented whereas HTTPtail is byte-oriented.  Line orientation is a possible future feature.
 
+How to use
+---
+    git clone https://github.com/tedsparc/httptail.git
+    cd httptail
+    GOPATH=`pwd` git install httptail
+    bin/httptail -c 10240 -f http://example.com/foo.txt
+
 Invocation examples
 ---
     httptail http://example.com/foo.txt
-        (same as "curl http://example.com/foo.txt -r -1024" or, locally, "tail -c 1024 foo.txt")
+        (same as "curl -r -1024 http://example.com/foo.txt" or, locally, "tail -c 1024 foo.txt")
 
-    httptail http://example.com/foo.txt -c 20480
-        (same as "curl http://example.com/foo.txt -r -20480")
+    httptail -c 20480 http://example.com/foo.txt
+        (same as "curl  -r -20480 http://example.com/foo.txt")
 
-    httptail http://example.com/foo.txt -c 20480 -f
+    httptail -c 20480 -f http://example.com/foo.txt
 
 Differences from tail
 ---
