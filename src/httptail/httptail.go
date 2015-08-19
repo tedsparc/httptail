@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"net/http/httputil"
+	"crypto/tls"
 	"os"
 	"strings"
 	"time"
@@ -17,6 +18,7 @@ import (
 var debug = flag.Bool("d", false, "Show debug info")
 var follow = flag.Bool("f", false, "Enable tail -f style follow behavior")
 var byte_count = flag.Int("c", 1024, "Byte count to retrieve initially")
+var ssl_skip_verify = flag.Bool("s", false, "Skip SSL certificate verification")
 
 func main() {
 	// Get flags
@@ -36,7 +38,13 @@ func main() {
 		log.Printf("url: %v\n", url)
 	}
 
-	client := &http.Client{}
+	var client = &http.Client{}
+	if *ssl_skip_verify {
+		tr := &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify : true},
+		}
+		client = &http.Client{Transport: tr}
+	}
 
 	next_request_range := range_request(client, url, fmt.Sprintf("-%d", *byte_count))
 
