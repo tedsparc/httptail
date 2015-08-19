@@ -29,7 +29,7 @@ func main() {
 		//url = "http://tedb.us/foo.txt"
 		log.Fatal("URL must be specified, e.g. httptail http://example.com/foo.txt")
 	}
-	if strings.Index(url, "http://") != 0 {
+	if strings.Index(url, "http://") != 0 && strings.Index(url, "https://") != 0 {
 		url = "http://" + url
 	}
 	if *debug {
